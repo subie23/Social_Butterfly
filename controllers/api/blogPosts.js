@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const {User, Blog, Comment} = require("../../models");
+const withAuth = require('../../util/auth.js')
+
 
 router.get("/", (req, res) => {
-    Comment.findAll({include:[User, Blog]})
-      .then(dbComments => {
-        res.json(dbComments);
+    Blog.findAll({include:[User, Comment]})
+      .then(dbBlogs => {
+        res.json(dbBlogs);
       })
       .catch(err => {
         console.log(err);
@@ -13,28 +15,32 @@ router.get("/", (req, res) => {
       });
   });
 
+ 
 router.get("/:id", (req, res) => {
-    Comment.findByPk(req.params.id,{include:[User, Blog]})
-      .then(dbComment => {
-        res.json(dbComment);
+    Blog.findByPk(req.params.id,{include:[User, Comment]})
+      .then(dbBlog => {
+        res.json(dbBlog);
       })
       .catch(err => {
         console.log(err);
         res.status(500).json({ msg: "an error occured", err });
       });
 });
+
 
 router.post("/", (req, res) => {
     if(!req.session.user){
-      return res.status(401).json({msg:"Please login first!"})
-  }
-    Comment.create({
-      body:req.body.body,
-      userId:req.session.user.id,
-      blogId:req.body.blogId
+      return res.status(401).json({msg:"Please login!"})
+    }
+
+    Blog.create({
+      title:req.body.title,
+      content:req.body.content,
+      userId:req.session.user.id
     })
-      .then(newComment => {
-        res.json(newComment);
+    
+      .then(newBlog => {
+        res.json(newBlog);
       })
       .catch(err => {
         console.log(err);
@@ -42,17 +48,17 @@ router.post("/", (req, res) => {
       });
 });
 
+ 
 router.put("/:id", (req, res) => {
-    if(!req.session.user){
-        return res.status(401).json({msg:"Please login first!"})
-    }
-     
-    Comment.update(req.body, {
+  if(!req.session.user){
+    return res.status(401).json({msg:"Please login!"})
+  }
+  Blog.update(req.body, {
       where: {
         id: req.params.id
       }
-    }).then(updatedComment => {
-      res.json(updatedComment);
+    }).then(updatedBlog => {
+      res.json(updatedBlog);
     })
     .catch(err => {
       console.log(err);
@@ -61,16 +67,15 @@ router.put("/:id", (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
-    if(!req.session.user){
-        return res.status(401).json({msg:"Please login first!"})
-    }
-     
-    Comment.destroy({
+  if(!req.session.user){
+    return res.status(401).json({msg:"Please login!"})
+  }
+    Blog.destroy({
       where: {
         id: req.params.id
       }
-    }).then(delComment => {
-      res.json(delComment);
+    }).then(delBlog => {
+      res.json(delBlog);
     })
     .catch(err => {
       console.log(err);
