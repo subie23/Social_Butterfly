@@ -1,2 +1,2 @@
-DROP DATABASE IF EXISTS socialButterfly;
-CREATE DATABASE socialButterfly;
+DROP DATABASE IF EXISTS socialbutterfly;
+CREATE DATABASE socialbutterfly;
